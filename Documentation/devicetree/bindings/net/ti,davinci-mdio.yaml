@@ -45,6 +45,12 @@ properties:
     items:
       - const: fck
 
+  compulab,cm-t43-phy-init:
+    type: boolean
+    description:
+      Initialize the CM-T43 Ethernet PHY reference clock and reset lines before
+      registering the MDIO bus.
+
   ti,hwmods:
     description: TI hwmod name
     deprecated: true

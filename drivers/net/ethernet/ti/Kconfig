@@ -40,6 +40,10 @@ config TI_DAVINCI_MDIO
 	  To compile this driver as a module, choose M here: the module
 	  will be called davinci_mdio.  This is recommended.
 
+config TI_DAVINCI_MDIO_CM_T43
+	bool
+	default y if SOC_AM43XX && TI_DAVINCI_MDIO
+
 config TI_CPSW_PHY_SEL
 	bool "TI CPSW Phy mode Selection (DEPRECATED)"
 	default n

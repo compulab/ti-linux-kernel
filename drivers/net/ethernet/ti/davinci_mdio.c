@@ -29,6 +29,10 @@
 #include <linux/mdio-bitbang.h>
 #include <linux/sys_soc.h>
 
+#ifdef CONFIG_TI_DAVINCI_MDIO_CM_T43
+#include "davinci_mdio_cm_t43.h"
+#endif
+
 /*
  * This timeout definition is a worst-case ultra defensive measure against
  * unexpected controller lock ups.  Ideally, we should never ever hit this
@@ -282,8 +286,11 @@ static int davinci_mdio_common_reset(struct davinci_mdio_data *data)
 		 (ver >> 8) & 0xff, ver & 0xff,
 		 data->pdata.bus_freq);
 
-	if (data->skip_scan)
+	if (data->skip_scan) {
+		phy_mask = readl(&data->regs->alive);
+		dev_info(data->dev, "PHY alive mask: 0x%08x\n", phy_mask);
 		goto done;
+	}
 
 	/* get phy mask from the alive register */
 	phy_mask = readl(&data->regs->alive);
@@ -607,6 +614,15 @@ static int davinci_mdio_probe(struct platform_device *pdev)
 	pm_runtime_set_autosuspend_delay(&pdev->dev, autosuspend_delay_ms);
 	pm_runtime_use_autosuspend(&pdev->dev);
 	pm_runtime_enable(&pdev->dev);
+
+#ifdef CONFIG_TI_DAVINCI_MDIO_CM_T43
+	if (of_property_read_bool(dev->of_node,
+				  "compulab,cm-t43-phy-init")) {
+		ret = davinci_mdio_cm_t43_enable_phys(dev);
+		if (ret)
+			goto bail_out;
+	}
+#endif
 
 	/* register the mii bus
 	 * Create PHYs from DT only in case if PHY child nodes are explicitly
