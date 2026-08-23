@@ -1,0 +1,37 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Ethernet PHY configuration for legacy CM-T43 modules.
+ *
+ * Legacy modules use Qualcomm Atheros PHYs at MDIO addresses 0 and 1.
+ */
+
+&davinci_mdio_sw {
+	/delete-node/ ethernet-phy@4;
+	/delete-node/ ethernet-phy@5;
+
+	legacy_ethphy0: ethernet-phy@0 {
+		compatible = "ethernet-phy-ieee802.3-c22";
+		reg = <0>;
+		reset-gpios = <&gpio5 10 GPIO_ACTIVE_LOW>;
+		reset-assert-us = <20000>;
+		reset-deassert-us = <100000>;
+	};
+
+	legacy_ethphy1: ethernet-phy@1 {
+		compatible = "ethernet-phy-ieee802.3-c22";
+		reg = <1>;
+		reset-gpios = <&gpio5 8 GPIO_ACTIVE_LOW>;
+		reset-assert-us = <20000>;
+		reset-deassert-us = <100000>;
+	};
+};
+
+&cpsw_port1 {
+	phy-handle = <&legacy_ethphy0>;
+	phy-mode = "rgmii-txid";
+};
+
+&cpsw_port2 {
+	phy-handle = <&legacy_ethphy1>;
+	phy-mode = "rgmii-txid";
+};

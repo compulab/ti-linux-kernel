@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015 CompuLab, Ltd. - https://www.compulab.co.il/
+ */
+
+#include "am437x-cm-t43.dts"
+#include "am437x-cm-t43-legacy-phy.dtsi"
+
+/ {
+	model = "CompuLab CM-T43 (legacy Atheros PHY)";
+};
