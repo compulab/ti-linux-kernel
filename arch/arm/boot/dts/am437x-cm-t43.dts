@@ -44,6 +44,15 @@
 		>;
 	};
 
+	phy_pins: phy-pins {
+		pinctrl-single,pins = <
+			AM4372_IOPAD(0xa38, PIN_OUTPUT_PULLUP | MUX_MODE7) /* gpio5_8, PHY1 reset */
+			AM4372_IOPAD(0xa3c, PIN_INPUT_PULLUP | MUX_MODE7) /* gpio5_9, PHY1 IRQ */
+			AM4372_IOPAD(0xa40, PIN_OUTPUT_PULLUP | MUX_MODE7) /* gpio5_10, PHY0 rst */
+			AM4372_IOPAD(0xa44, PIN_INPUT_PULLUP | MUX_MODE7) /* gpio5_11, PHY0 IRQ */
+		>;
+	};
+
 	i2c0_pins: i2c0_pins {
 		pinctrl-single,pins = <
 			AM4372_IOPAD(0x988, PIN_INPUT_PULLUP | SLEWCTRL_FAST | MUX_MODE0)  /* i2c0_sda.i2c0_sda */
@@ -110,7 +119,6 @@
 			AM4372_IOPAD(0x938, PIN_INPUT_PULLDOWN | MUX_MODE2)	/* mii1_rxd0.rgmii1_rxd2 */
 			AM4372_IOPAD(0x93c, PIN_INPUT_PULLDOWN | MUX_MODE2)	/* mii1_rxd1.rgmii1_rxd1 */
 			AM4372_IOPAD(0x940, PIN_INPUT_PULLDOWN | MUX_MODE2)	/* mii1_rxd0.rgmii1_rxd0 */
-			AM4372_IOPAD(0xa74, MUX_MODE3)
 			/* Slave 2 */
 			AM4372_IOPAD(0x840, PIN_OUTPUT_PULLDOWN | MUX_MODE2)	/* gpmc_a0.txen */
 			AM4372_IOPAD(0x844, PIN_INPUT_PULLDOWN  | MUX_MODE2)	/* gpmc_a1.rxctl */
@@ -124,15 +132,14 @@
 			AM4372_IOPAD(0x864, PIN_INPUT_PULLDOWN  | MUX_MODE2)	/* gpmc_a9.rxd2 */
 			AM4372_IOPAD(0x868, PIN_INPUT_PULLDOWN  | MUX_MODE2)	/* gpmc_a10.rxd1 */
 			AM4372_IOPAD(0x86c, PIN_INPUT_PULLDOWN  | MUX_MODE2)	/* gpmc_a11.rxd0 */
-			AM4372_IOPAD(0xa38, MUX_MODE7)
 		>;
 	};
 
 	davinci_mdio_default: davinci_mdio_default {
 		pinctrl-single,pins = <
 			/* MDIO */
-			AM4372_IOPAD(0x948, PIN_INPUT_PULLUP | SLEWCTRL_FAST | MUX_MODE0)	/* mdio_data.mdio_data */
-			AM4372_IOPAD(0x94c, PIN_OUTPUT_PULLUP | MUX_MODE0)			/* mdio_clk.mdio_clk */
+			AM4372_IOPAD(0x948, PIN_INPUT_PULLUP | SLEWCTRL_FAST | MUX_MODE0)
+			AM4372_IOPAD(0x94c, PIN_OUTPUT_PULLUP | MUX_MODE0) /* mdio_clk */
 		>;
 	};
 };
@@ -333,26 +340,41 @@
 
 &davinci_mdio_sw {
 	pinctrl-names = "default";
-	pinctrl-0 = <&davinci_mdio_default>;
+	pinctrl-0 = <&davinci_mdio_default &phy_pins>;
+	compulab,cm-t43-phy-init;
 
-	ethphy0: ethernet-phy@0 {
-		reg = <0>;
+	ethphy0: ethernet-phy@4 {
+		compatible = "ethernet-phy-id001c.c915",
+			     "ethernet-phy-ieee802.3-c22";
+		reg = <4>;
+		reset-gpios = <&gpio5 10 GPIO_ACTIVE_LOW>;
+		reset-assert-us = <20000>;
+		reset-deassert-us = <100000>;
+		interrupt-parent = <&gpio5>;
+		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
 	};
 
-	ethphy1: ethernet-phy@1 {
-		reg = <1>;
+	ethphy1: ethernet-phy@5 {
+		compatible = "ethernet-phy-id001c.c915",
+			     "ethernet-phy-ieee802.3-c22";
+		reg = <5>;
+		reset-gpios = <&gpio5 8 GPIO_ACTIVE_LOW>;
+		reset-assert-us = <20000>;
+		reset-deassert-us = <100000>;
+		interrupt-parent = <&gpio5>;
+		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
 	};
 };
 
 &cpsw_port1 {
 	phy-handle = <&ethphy0>;
-	phy-mode = "rgmii-txid";
+	phy-mode = "rgmii-id";
 	ti,dual-emac-pvid = <1>;
 };
 
 &cpsw_port2 {
 	phy-handle = <&ethphy1>;
-	phy-mode = "rgmii-txid";
+	phy-mode = "rgmii-id";
 	ti,dual-emac-pvid = <2>;
 };
 
