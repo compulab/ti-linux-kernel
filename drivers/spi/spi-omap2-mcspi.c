@@ -1341,6 +1341,11 @@ static struct omap2_mcspi_platform_config omap4_pdata = {
 	.regs_offset = OMAP4_MCSPI_REG_OFFSET,
 };
 
+static struct omap2_mcspi_platform_config am4372_pdata = {
+	.regs_offset = OMAP4_MCSPI_REG_OFFSET,
+	.max_xfer_len = OMAP2_MCSPI_MAX_FIFOWCNT,
+};
+
 static struct omap2_mcspi_platform_config am654_pdata = {
 	.regs_offset = OMAP4_MCSPI_REG_OFFSET,
 	.max_xfer_len = SZ_4K - 1,
@@ -1350,6 +1355,10 @@ static const struct of_device_id omap_mcspi_of_match[] = {
 	{
 		.compatible = "ti,omap2-mcspi",
 		.data = &omap2_pdata,
+	},
+	{
+		.compatible = "ti,am4372-mcspi",
+		.data = &am4372_pdata,
 	},
 	{
 		.compatible = "ti,omap4-mcspi",
