@@ -28,10 +28,8 @@
 
 &cpsw_port1 {
 	phy-handle = <&legacy_ethphy0>;
-	phy-mode = "rgmii-txid";
 };
 
 &cpsw_port2 {
 	phy-handle = <&legacy_ethphy1>;
-	phy-mode = "rgmii-txid";
 };
