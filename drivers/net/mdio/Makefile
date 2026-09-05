@@ -3,6 +3,7 @@
 
 obj-$(CONFIG_ACPI_MDIO)		+= acpi_mdio.o
 obj-$(CONFIG_FWNODE_MDIO)	+= fwnode_mdio.o
+obj-$(CONFIG_TI_DAVINCI_MDIO_CM_T43) += fwnode_mdio_cmt_43.o
 obj-$(CONFIG_OF_MDIO)		+= of_mdio.o
 
 obj-$(CONFIG_MDIO_ASPEED)		+= mdio-aspeed.o

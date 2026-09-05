@@ -367,6 +367,9 @@ static void __init of_ti_dpll_setup(struct device_node *node,
 	if (of_property_read_bool(node, "ti,low-power-stop"))
 		dpll_mode |= 1 << DPLL_LOW_POWER_STOP;
 
+	if (of_property_read_bool(node, "ti,mn-bypass"))
+		dpll_mode |= 1 << DPLL_MN_BYPASS;
+
 	if (of_property_read_bool(node, "ti,low-power-bypass"))
 		dpll_mode |= 1 << DPLL_LOW_POWER_BYPASS;
 

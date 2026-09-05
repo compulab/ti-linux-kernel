@@ -50,6 +50,8 @@
 			AM4372_IOPAD(0xa3c, PIN_INPUT_PULLUP | MUX_MODE7) /* gpio5_9, PHY1 IRQ */
 			AM4372_IOPAD(0xa40, PIN_OUTPUT_PULLUP | MUX_MODE7) /* gpio5_10, PHY0 rst */
 			AM4372_IOPAD(0xa44, PIN_INPUT_PULLUP | MUX_MODE7) /* gpio5_11, PHY0 IRQ */
+			/* xdma_event_intr1.clkout2 */
+			AM4372_IOPAD(0xa74, PIN_INPUT_PULLDOWN | MUX_MODE3)
 		>;
 	};
 
@@ -343,14 +345,23 @@
 	status = "okay";
 };
 
+&dpll_extdev_ck {
+	ti,mn-bypass;
+	ti,lock;
+};
+
 &davinci_mdio_sw {
 	pinctrl-names = "default";
 	pinctrl-0 = <&davinci_mdio_default &phy_pins>;
+	clocks = <&cpsw_125mhz_gclk>, <&clkout2_ck>;
+	clock-names = "fck", "phy-ref";
+	assigned-clocks = <&clkout2_mux_ck>, <&dpll_extdev_m2_ck>;
+	assigned-clock-parents = <&dpll_extdev_m2_gate_ck>, <0>;
+	assigned-clock-rates = <0>, <2500000>;
 	compulab,cm-t43-phy-init;
 
 	ethphy0: ethernet-phy@4 {
-		compatible = "ethernet-phy-id001c.c915",
-			     "ethernet-phy-ieee802.3-c22";
+		compatible = "ethernet-phy-ieee802.3-c22";
 		reg = <4>;
 		reset-gpios = <&gpio5 10 GPIO_ACTIVE_LOW>;
 		reset-assert-us = <20000>;
@@ -360,8 +371,7 @@
 	};
 
 	ethphy1: ethernet-phy@5 {
-		compatible = "ethernet-phy-id001c.c915",
-			     "ethernet-phy-ieee802.3-c22";
+		compatible = "ethernet-phy-ieee802.3-c22";
 		reg = <5>;
 		reset-gpios = <&gpio5 8 GPIO_ACTIVE_LOW>;
 		reset-assert-us = <20000>;

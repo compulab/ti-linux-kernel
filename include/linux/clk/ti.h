@@ -206,6 +206,7 @@ struct clk_hw_omap {
 
 /* CM_CLKEN_PLL*.EN* bit values - not all are available for every DPLL */
 #define DPLL_LOW_POWER_STOP	0x1
+#define DPLL_MN_BYPASS		0x4
 #define DPLL_LOW_POWER_BYPASS	0x5
 #define DPLL_LOCKED		0x7
 

@@ -54,6 +54,8 @@ Optional properties:
 - DPLL mode setting - defining any one or more of the following overrides
   default setting.
 	- ti,low-power-stop : DPLL supports low power stop mode, gating output
+	- ti,mn-bypass : DPLL uses MN bypass when its output rate matches the
+			 parent bypass clock
 	- ti,low-power-bypass : DPLL output matches rate of parent bypass clock
 	- ti,lock : DPLL locks in programmed rate
 	- ti,min-div : the minimum divisor to start from to round the DPLL

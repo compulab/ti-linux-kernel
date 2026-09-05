@@ -172,29 +172,37 @@ done:
  * _omap3_noncore_dpll_bypass - instruct a DPLL to bypass and wait for readiness
  * @clk: pointer to a DPLL struct clk
  *
- * Instructs a non-CORE DPLL to enter low-power bypass mode.  In
- * bypass mode, the DPLL's rate is set equal to its parent clock's
- * rate.  Waits for the DPLL to report readiness before returning.
+ * Instructs a non-CORE DPLL to enter its configured bypass mode.  In
+ * bypass mode, the DPLL's rate is set equal to its parent clock's rate.
+ * MN bypass is preferred when the DPLL data advertises that mode;
+ * otherwise low-power bypass is used.  Waits for the DPLL to report
+ * readiness before returning.
  * Will save and restore the DPLL's autoidle state across the enable,
  * per the CDP code.  If the DPLL entered bypass mode successfully,
  * return 0; if the DPLL did not enter bypass in the time allotted, or
- * DPLL3 was passed in, or the DPLL does not support low-power bypass,
- * return -EINVAL.
+ * DPLL3 was passed in, or the DPLL does not support a bypass mode, return
+ * -EINVAL.
  */
 static int _omap3_noncore_dpll_bypass(struct clk_hw_omap *clk)
 {
 	int r;
 	u8 ai;
+	u8 mode;
 
-	if (!(clk->dpll_data->modes & (1 << DPLL_LOW_POWER_BYPASS)))
+	if (clk->dpll_data->modes & (1 << DPLL_MN_BYPASS))
+		mode = DPLL_MN_BYPASS;
+	else if (clk->dpll_data->modes & (1 << DPLL_LOW_POWER_BYPASS))
+		mode = DPLL_LOW_POWER_BYPASS;
+	else
 		return -EINVAL;
 
-	pr_debug("clock: configuring DPLL %s for low-power bypass\n",
-		 clk_hw_get_name(&clk->hw));
+	pr_debug("clock: configuring DPLL %s for %s bypass\n",
+		 clk_hw_get_name(&clk->hw),
+		 mode == DPLL_MN_BYPASS ? "MN" : "low-power");
 
 	ai = omap3_dpll_autoidle_read(clk);
 
-	_omap3_dpll_write_clken(clk, DPLL_LOW_POWER_BYPASS);
+	_omap3_dpll_write_clken(clk, mode);
 
 	r = _omap3_wait_dpll_status(clk, 0);
 

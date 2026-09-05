@@ -8,9 +8,12 @@
 
 #include <linux/acpi.h>
 #include <linux/fwnode_mdio.h>
+#include <linux/gpio/consumer.h>
 #include <linux/of.h>
 #include <linux/phy.h>
 #include <linux/pse-pd/pse.h>
+
+#include "fwnode_mdio_cmt_43.h"
 
 MODULE_AUTHOR("Calvin Johnson <calvin.johnson@oss.nxp.com>");
 MODULE_LICENSE("GPL");
@@ -115,6 +118,7 @@ int fwnode_mdiobus_register_phy(struct mii_bus *bus,
 	struct mii_timestamper *mii_ts = NULL;
 	struct pse_control *psec = NULL;
 	struct phy_device *phy;
+	struct gpio_desc *reset_gpio;
 	bool is_c45 = false;
 	u32 phy_id;
 	int rc;
@@ -134,10 +138,18 @@ int fwnode_mdiobus_register_phy(struct mii_bus *bus,
 	if (rc >= 0)
 		is_c45 = true;
 
-	if (is_c45 || fwnode_get_phy_id(child, &phy_id))
+	if (is_c45 || fwnode_get_phy_id(child, &phy_id)) {
+		reset_gpio = fwnode_mdio_cmt_43_phy_reset(bus, child);
+		if (IS_ERR(reset_gpio)) {
+			rc = PTR_ERR(reset_gpio);
+			goto clean_mii_ts;
+		}
+
 		phy = get_phy_device(bus, addr, is_c45);
-	else
+		gpiod_put(reset_gpio);
+	} else {
 		phy = phy_device_create(bus, addr, phy_id, 0, NULL);
+	}
 	if (IS_ERR(phy)) {
 		rc = PTR_ERR(phy);
 		goto clean_mii_ts;
